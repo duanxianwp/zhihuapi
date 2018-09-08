@@ -1,11 +1,9 @@
-import json
 import time
 from io import BytesIO
 from PIL import Image
 from wordcloud import WordCloud, STOPWORDS
 import jieba
 import requests as requests
-import matplotlib.pyplot as plt
 from db import MongoTools, OssUtils
 from bs4 import BeautifulSoup
 import numpy as np
