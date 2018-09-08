@@ -2,10 +2,11 @@ import time
 
 import schedule as schedule
 
-from job import cleandata
+from job import cleandata, spider
 
 
 def job():
+    spider.run()
     cleandata.run()
 
 
