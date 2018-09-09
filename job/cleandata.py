@@ -1,9 +1,9 @@
 import time
 from io import BytesIO
 from PIL import Image
-from wordcloud import WordCloud, STOPWORDS
+from wordcloud import WordCloud
 import jieba
-import requests as requests
+import requests
 from db import MongoTools, OssUtils
 from bs4 import BeautifulSoup
 import numpy as np
@@ -13,8 +13,13 @@ from config import settings
 '''取数据,去空格'''
 
 
-class CleanData():
+class CleanData(object):
     url_token = None
+    stop_words_list = {}
+
+    def __init__(self):
+        url = settings.WORD_CLOUD_STOP_WORD_URL
+        self.stop_words_list = set(requests.get(url).text.split('\n'))
 
     def get_answer_word_data(self):
         token = MongoTools.get_analyze_token()
@@ -30,11 +35,8 @@ class CleanData():
         word_list = (' '.join(jieba.cut(article.strip(), cut_all=False))).split(' ')  # seg_list为str类型
         final_word_list = []
 
-        url = settings.WORD_CLOUD_STOP_WORD_URL
-        stop_words_list = requests.get(url).text.split('\n')
-
         for word in word_list:
-            if word not in stop_words_list:
+            if word not in self.stop_words_list:
                 final_word_list.append(word)
 
         return ' '.join(final_word_list)
@@ -63,15 +65,12 @@ class CleanData():
             background_color=settings.WORD_CLOUD_BACKGROUND_COLOR,
             mask=background_image,
             font_path=settings.WORD_CLOUD_FONT_PATH,
-            stopwords=STOPWORDS.add("said"),
+            stopwords=self.stop_words_list,
             max_words=settings.WORD_CLOUD_MAX_WORDS,
             max_font_size=settings.WORD_CLOUD_MAX_FONT_SIZE,  # 字体最大值
             min_font_size=settings.WORD_CLOUD_MIN_FONT_SIZE,
             random_state=settings.WORD_CLOUD_RANDOM_STATE
         ).generate(words)
-        # plt.imshow(my_wordcloud)
-        # plt.axis("off")
-        # plt.show()
         img = my_wordcloud.to_image()
         return OssUtils.upload_img(img)
 
