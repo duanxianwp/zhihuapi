@@ -70,7 +70,7 @@ def get_all_answer_word(token):
 
 def finish_data_anlyaze(item):
     client = pymongo.MongoClient(settings.MONGO_URI)
-    tb = client.get_database(settings.MONGO_DATABASE).get_collection('word_loud_item')
+    tb = client.get_database(settings.MONGO_DATABASE).get_collection('word_cloud_item')
     tb.insert_one(item)
     tb = client.get_database(settings.MONGO_DATABASE).get_collection('collect_task')
     tb.update_one({'token': item['url_token']}, {'$set': {'status': 'FINISHED'}}, True)
